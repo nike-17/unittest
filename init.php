@@ -16,7 +16,8 @@ else if(Kohana_Tests::enabled())
 	require_once 'PHPUnit/Framework.php';
 }
 
-Route::set('unittest', '(<controller>(/<action>(/<id>)))')
+Route::set('unittest', '(phpunit(/<action>(/<id>)))')
 	->defaults(array(
+		'controller' => 'phpunit',
 		'action'     => 'index',
 	));

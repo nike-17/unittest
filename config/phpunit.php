@@ -10,6 +10,8 @@ return array
 	// This is the folder where we generate and zip all the reports for downloading
 	// Needs to be readable and writable
 	'temp_path'				=> Kohana::$cache_dir.'/phpunit',
+	// The URL to redirect to after the report has been generated (for HTML only)
+	'coverage_url'          => 'http://url/to/reports/',
 
 	// If you don't use a whitelist then only files included during the request will be counted
 	// If you do, then only whitelisted items will be counted

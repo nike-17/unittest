@@ -86,12 +86,6 @@ class Controller_PHPUnit extends Controller_Template
 	 */
 	public function action_report()
 	{
-		// Fairly foolproof
-		if( ! class_exists('Archive'))
-		{
-			throw new Kohana_Exception('The Archive module is needed to package the reports');
-		}
-
 		// We don't want to use the HTML layout, we're sending the user 100111011100110010101100
 		$this->auto_render = FALSE;
 
@@ -99,6 +93,12 @@ class Controller_PHPUnit extends Controller_Template
 		$temp_path		= rtrim($this->config->temp_path, '/').'/';
 		$group			= (array) Arr::get($_GET, 'group', array());
 		$report_format	= Arr::get($_POST, 'format', 'PHP_Util_Report');
+
+		// Fairly foolproof
+		if($report_format !== 'PHP_Util_Report' && ! class_exists('Archive'))
+		{
+			throw new Kohana_Exception('The Archive module is needed to package the reports');
+		}
 
 		// Stop phpunit from interpretting "all groups" as "no groups"
 		if(empty($group) OR empty($group[0]))
@@ -113,23 +113,72 @@ class Controller_PHPUnit extends Controller_Template
 
 		$runner = new Kohana_PHPUnit($suite);
 
+		if($report_format === 'PHP_Util_Report')
+		{
+			$file_handler = opendir($this->config->temp_path);
+			while(false !== ($dirname = readdir($file_handler)))
+			{
+				if((0 !== strpos($dirname, '.')) && is_dir($this->config->temp_path . $dirname))
+				{
+					$this->rmdir_recursive($this->config->temp_path . $dirname);
+				}
+			}
+		}
+
 		// $report is the actual directory of the report,
 		// $folder is the name component of directory
 		list($report, $folder) = $runner->generate_report($group, $temp_path, $report_format);
 
-		$archive = Archive::factory('zip');
+		if ($report_format !== 'PHP_Util_Report')
+		{
+			$archive = Archive::factory('zip');
 
-		// TODO: Include the test results?
-		$archive->add($report, 'report', TRUE);
+			// TODO: Include the test results?
+			$archive->add($report, 'report', TRUE);
 
-		$filename = $folder.'.zip';
+			$filename = $folder.'.zip';
 
-		$archive->save($temp_path.$filename);
+			$archive->save($temp_path.$filename);
 
-		// It'd be nice to clear up afterwards but by deleting the report dir we corrupt the archive
-		// And once the archive has been sent to the user Request stops the script so we can't delete anything
-		// It'll be up to the user to delete files periodically
-		$this->request->send_file($temp_path.$filename, $filename);
+			$this->request->send_file($temp_path.$filename, $filename);
+
+		}
+		else
+		{
+			Request::instance()->redirect($this->config->coverage_url . $folder . '/index.html');
+		}
+	}
+
+	/**
+	 * Recursively remove a directory
+	 */
+	function rmdir_recursive($dirname)
+	{
+		if (is_dir($dirname))
+		{
+			$dir_handle = opendir($dirname);
+		}
+		if (!$dir_handle)
+		{
+			return false;
+		}
+		while($file = readdir($dir_handle))
+		{
+			if ($file != "." && $file != "..")
+			{
+				if (!is_dir($dirname."/".$file))
+				{
+					unlink($dirname."/".$file);
+				}
+				else
+				{
+					$this->rmdir_recursive($dirname.'/'.$file);
+				}
+			}
+		}
+		closedir($dir_handle);
+		rmdir($dirname);
+		return true;
 	}
 
 	/**

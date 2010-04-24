@@ -18,7 +18,7 @@ Class Kohana_PHPUnit implements PHPUnit_Framework_TestListener
 	 */
 	public static $report_formats =	array
 								(
-									'PHPUnit_Util_Report'						=> 'HTML files (zipped)',
+									'PHPUnit_Util_Report'						=> 'HTML',
 									'PHPUnit_Util_Log_CodeCoverage_XML_Clover'	=> 'Clover',
 									'PHPUnit_Util_Log_CodeCoverage_XML_Source'	=> 'XML',
 								);
