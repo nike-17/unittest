@@ -41,7 +41,7 @@ class Kohana_Tests
 		if( ! class_exists('PHPUnit_Util_Filter', FALSE))
 		{
 			// Make sure the PHPUnit classes are available
-			require_once 'PHPUnit/Framework.php';
+			require_once 'PHPUnit/Autoload.php';
 		}
 
 		if(Kohana::$is_cli)
@@ -54,7 +54,7 @@ class Kohana_Tests
 
 		Kohana_Tests::$cache = ($cache = Kohana::cache('phpunit_whitelist_cache')) === NULL ? array() : $cache;
 
-		$config = Kohana::config('phpunit');
+		$config = Kohana::$config->load('phpunit');
 
 		if($do_whitelist AND $config->use_whitelist)
 		{
@@ -67,11 +67,11 @@ class Kohana_Tests
 			{
 				if(is_dir($item))
 				{
-					PHPUnit_Util_Filter::addDirectoryToFilter($item);
+					PHP_CodeCoverage_Filter::getInstance()->addDirectoryToBlacklist($item);
 				}
 				else
 				{
-					PHPUnit_Util_Filter::addFileToFilter($item);
+					PHP_CodeCoverage_Filter::getInstance()->addFileToBlacklist($item);
 				}
 			}
 		}
@@ -84,7 +84,7 @@ class Kohana_Tests
 	 */
 	static function enabled()
 	{
-		$p_enviroment = Kohana::config('phpunit.enviroment');
+		$p_enviroment = Kohana::$config->load('phpunit.enviroment');
 		$k_enviroment = Kohana::$environment;
 
 		return  (is_array($p_enviroment) AND in_array($k_enviroment, $p_enviroment))
@@ -106,7 +106,7 @@ class Kohana_Tests
 			return $suite;
 		}
 		
-		$files = Kohana::list_files('tests');
+		$files = Kohana::list_files('utests');
 
 		$suite = new PHPUnit_Framework_TestSuite();
 
@@ -145,7 +145,7 @@ class Kohana_Tests
 						require_once($file);
 					}
 
-					PHPUnit_Util_Filter::addFileToFilter($file);
+					PHP_CodeCoverage_Filter::getInstance()->addDirectoryToBlacklist($file);
 				}
 			}
 		}
@@ -186,7 +186,7 @@ class Kohana_Tests
 	 */
 	static protected function get_config_whitelist()
 	{
-		$config = Kohana::config('phpunit');
+		$config = Kohana::$config->load('phpunit');
 		$directories = array();
 
 		if($config->whitelist['app'])

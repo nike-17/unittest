@@ -56,7 +56,7 @@ class Controller_PHPUnit extends Controller_Template
 		// to be laoded
 		Kohana_Tests::configure_enviroment(FALSE);
 
-		$this->config = Kohana::config('phpunit');
+		$this->config = Kohana::$config->load('phpunit');
 
 		// This just stops some very very long lines
 		$route = Route::get('unittest');

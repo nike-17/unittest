@@ -5,19 +5,7 @@
 		<?php echo Form::open(NULL, array('method' => 'get'));?>
 		<?php echo Form::label('group', __('Switch Group')); ?>
 		<?php echo Form::select('group', $groups, $group, array('id' => 'group'));?>
-		<?php if($xdebug_enabled): ?>
-			<?php echo Form::label('collect_cc', __('Collect Coverage')); ?>
-			<?php echo Form::checkbox('collect_cc', 1, isset($coverage), array('id' => 'collect_cc')); ?>
-			<div depends_on="#collect_cc">
-				<?php echo Form::label('use_whitelist', __('Use whitelist'));?>
-				<?php echo Form::checkbox('use_whitelist', 1, $whitelist, array('id' => 'use_whitelist')); ?>
-
-				<div depends_on="#use_whitelist">
-					<?php echo Form::label('whitelist', __('Whitelisted modules')); ?>
-					<?php echo Form::select('whitelist[]', $whitelistable_items, $whitelisted_items, array('id' => 'whitelist', 'multiple' => 'multiple')); ?>
-				</div>
-			</div>
-		<?php endif; ?>
+		
 		<?php echo Form::submit('run', 'Run');?>
 		<?php echo Form::close();?>
 	</fieldset>
